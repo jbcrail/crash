@@ -1,8 +1,8 @@
 package main
 
 import (
+	"./fsm/query"
 	"fmt"
-    "./scanner/calc"
 
 	"github.com/peterh/liner"
 )
@@ -21,8 +21,33 @@ func main() {
 			break
 		}
 		state.AppendHistory(cmd)
-        if result, code := calc.Evaluate(cmd); code == 0 {
-            fmt.Println(result)
-        }
+		result, err := query.Parse(cmd + "\n")
+		if err == nil {
+			iterator := result.Iterator
+			reducerOp := ""
+			for _, op := range result.Ops {
+				switch op.Name {
+				case "take":
+					iterator = iterator.Take(op.Args[0].(uint))
+				case "drop":
+					iterator = iterator.Drop(op.Args[0].(uint))
+				case "max", "min", "last":
+					reducerOp = op.Name
+					break
+				}
+			}
+			switch reducerOp {
+			case "max":
+				fmt.Println(iterator.Max())
+			case "min":
+				fmt.Println(iterator.Min())
+			case "last":
+				fmt.Println(iterator.Last())
+			default:
+				fmt.Println(iterator)
+			}
+		} else {
+			fmt.Println(err)
+		}
 	}
 }

@@ -1,0 +1,9 @@
+LINQ to CSV
+LINQ to JSON
+LINQ to filesystem
+LINQ to processes
+
+[first..], [first,second..], [first..last], [first,second..last]
+
+[1..100]
+[1..] | take 2 | drop 1 | filter (x => x == 0)

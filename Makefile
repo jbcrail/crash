@@ -1,8 +1,9 @@
-crash: crash.go calc.y
+crash: crash.go query.rl
 	go build -o crash crash.go
 
-calc.y:
-	cd scanner/calc; go tool yacc calc.y
+query.rl:
+	cd fsm/query ; make
 
 clean:
-	rm -f scanner/calc/y.go scanner/calc/y.output crash
+	cd fsm/query ; make clean
+	rm -f crash
