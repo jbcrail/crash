@@ -12,8 +12,8 @@ import (
 )
 
 %%{
-	machine query;
-	write data;
+    machine query;
+    write data;
 }%%
 
 type Op struct {
@@ -49,7 +49,7 @@ func Parse(data string) (*Query, error) {
         }
     }
 
-	%%{
+    %%{
         action reset {
             val = 0
         }
@@ -63,13 +63,13 @@ func Parse(data string) (*Query, error) {
             stackNums = append(stackNums, val)
         }
 
-		action range { 
+        action range { 
             upper := stackNums[len(stackNums)-1]
             stackNums = stackNums[:len(stackNums)-1]
             lower := stackNums[len(stackNums)-1]
             stackNums = stackNums[:len(stackNums)-1]
             query.Iterator = xrange(lower, upper)
-		}
+        }
 
         action drop {
             n := stackNums[len(stackNums)-1]
@@ -136,10 +136,10 @@ func Parse(data string) (*Query, error) {
 
         main := range (pipe take | pipe drop | pipe reverse)* (pipe length | pipe max | pipe min | pipe last)? . '\n';
 
-		# Initialize and execute.
-		write init;
-		write exec;
-	}%%
+        # Initialize and execute.
+        write init;
+        write exec;
+    }%%
 
     if cs < query_first_final {
         if p == pe {
