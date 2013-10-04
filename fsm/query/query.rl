@@ -26,6 +26,13 @@ type Query struct {
     Ops []*Op
 }
 
+func (q *Query) addOp(name string, args ...interface{}) {
+    op := new(Op)
+    op.Name = name
+    op.Args = append(op.Args, args...)
+    q.Ops = append(q.Ops, op)
+}
+
 func Parse(data string) (*Query, error) {
     var val uint
     cs, p, pe := 0, 0, len(data)
@@ -67,37 +74,33 @@ func Parse(data string) (*Query, error) {
         action drop {
             n := stackNums[len(stackNums)-1]
             stackNums = stackNums[:len(stackNums)-1]
-            op := new(Op)
-            op.Name = "drop"
-            op.Args = append(op.Args, n)
-            query.Ops = append(query.Ops, op)
+            query.addOp("drop", n)
         }
 
         action take {
             n := stackNums[len(stackNums)-1]
             stackNums = stackNums[:len(stackNums)-1]
-            op := new(Op)
-            op.Name = "take"
-            op.Args = append(op.Args, n)
-            query.Ops = append(query.Ops, op)
+            query.addOp("take", n)
+        }
+
+        action reverse {
+            query.addOp("reverse")
+        }
+
+        action length {
+            query.addOp("length")
         }
 
         action max {
-            op := new(Op)
-            op.Name = "max"
-            query.Ops = append(query.Ops, op)
+            query.addOp("max")
         }
 
         action min {
-            op := new(Op)
-            op.Name = "min"
-            query.Ops = append(query.Ops, op)
+            query.addOp("min")
         }
 
         action last {
-            op := new(Op)
-            op.Name = "last"
-            query.Ops = append(query.Ops, op)
+            query.addOp("last")
         }
 
         whitespace = [ \t]*;
@@ -116,6 +119,12 @@ func Parse(data string) (*Query, error) {
         dropOp = "drop" whitespace;
         drop = dropOp value %drop;
 
+        reverseOp = "reverse" whitespace;
+        reverse = reverseOp %reverse;
+
+        lengthOp = "length" whitespace;
+        length = lengthOp %length;
+
         maxOp = "max" whitespace;
         max = maxOp %max;
 
@@ -125,7 +134,7 @@ func Parse(data string) (*Query, error) {
         lastOp = "last" whitespace;
         last = lastOp %last;
 
-        main := range (pipe take | pipe drop)* (pipe max | pipe min | pipe last)? . '\n';
+        main := range (pipe take | pipe drop | pipe reverse)* (pipe length | pipe max | pipe min | pipe last)? . '\n';
 
 		# Initialize and execute.
 		write init;

@@ -31,12 +31,16 @@ func main() {
 					iterator = iterator.Take(op.Args[0].(uint))
 				case "drop":
 					iterator = iterator.Drop(op.Args[0].(uint))
-				case "max", "min", "last":
+				case "reverse":
+					iterator = iterator.Reverse()
+				case "length", "max", "min", "last":
 					reducerOp = op.Name
 					break
 				}
 			}
 			switch reducerOp {
+			case "length":
+				fmt.Println(iterator.Length())
 			case "max":
 				fmt.Println(iterator.Max())
 			case "min":
