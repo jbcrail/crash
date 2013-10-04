@@ -12,6 +12,20 @@ import (
     write data;
 }%%
 
+type NumStack struct {
+    queue []uint
+}
+
+func (s *NumStack) push(n uint) {
+    s.queue = append(s.queue, n)
+}
+
+func (s *NumStack) pop() (uint) {
+    n := s.queue[len(s.queue)-1]
+    s.queue = s.queue[:len(s.queue)-1]
+    return n
+}
+
 type Op struct {
     Name string
     Args []interface{}
@@ -33,7 +47,7 @@ func Parse(data string) (*Query, error) {
     var val uint
     cs, p, pe := 0, 0, len(data)
 
-    stackNums := make([]uint, 0)
+    stackNums := new(NumStack)
     query := new(Query)
 
     var xrange func(uint, uint) *F.Thunk
@@ -56,27 +70,21 @@ func Parse(data string) (*Query, error) {
         }
 
         action store {
-            stackNums = append(stackNums, val)
+            stackNums.push(val)
         }
 
         action range { 
-            upper := stackNums[len(stackNums)-1]
-            stackNums = stackNums[:len(stackNums)-1]
-            lower := stackNums[len(stackNums)-1]
-            stackNums = stackNums[:len(stackNums)-1]
+            upper := stackNums.pop()
+            lower := stackNums.pop()
             query.Iterator = xrange(lower, upper)
         }
 
         action drop {
-            n := stackNums[len(stackNums)-1]
-            stackNums = stackNums[:len(stackNums)-1]
-            query.addOp("drop", n)
+            query.addOp("drop", stackNums.pop())
         }
 
         action take {
-            n := stackNums[len(stackNums)-1]
-            stackNums = stackNums[:len(stackNums)-1]
-            query.addOp("take", n)
+            query.addOp("take", stackNums.pop())
         }
 
         action reverse {
