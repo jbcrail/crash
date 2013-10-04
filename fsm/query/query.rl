@@ -1,7 +1,3 @@
-/*
- * Convert a string to an integer.
- */
-
 package query;
 
 import (
